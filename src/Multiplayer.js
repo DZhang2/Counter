@@ -49,7 +49,6 @@ export default function Multiplayer({route}) {
 
   //update player score
   useEffect(() => {
-    console.log("checking updates", route.params.master)
     if (Math.abs(value - cacheValue) > 0) {
       console.log("updating", route.params.master)
       const route_str = route.params.master == 1 ? "/p1_score" : "/p2_score"
@@ -62,6 +61,7 @@ export default function Multiplayer({route}) {
 
   //listen for opponent score
   useEffect(() => {
+    console.log("adding listener")
     const route_str = route.params.master == 1 ? "/p2_score" : "/p1_score"
     const gameRef = db.ref('/games/' + route.params.game_id + route_str)
     gameRef.on('value', (snapshot) => {
@@ -69,7 +69,10 @@ export default function Multiplayer({route}) {
       const data = snapshot.val()
       setOpponentScore(data)
     })
-  }, [ticking])
+    return () => {
+      gameRef.off()
+    }
+  }, [])
 
   const upgrade = () => {
     if (value < 100) {
@@ -92,12 +95,15 @@ export default function Multiplayer({route}) {
           let update = {}
           update['/games/' + route.params.game_id + route_str] = true
           db.ref().update(update)
+          console.log(route.params.master, "ready")
           setIsWaiting(true)
         } 
         if (snapshot.val()) {
+          console.log(route.params.master, "playing")
           setIsPlaying(true)
           setIsWaiting(false)
           db.ref('/games/' + route.params.game_id + opp_route_str).off()
+          //master sets isReady to false for both players
           if (route.params.master == 1) {
             let updates = {}
             updates['/games/' + route.params.game_id + '/p1_ready'] = false
