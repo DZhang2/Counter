@@ -1,2 +1,2 @@
 # Counter
-React Native multiplayer game
+React Native real-time multiplayer game
