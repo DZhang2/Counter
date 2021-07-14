@@ -25,14 +25,8 @@ export default function Multiplayer({route}) {
 
   //set total time
   useEffect(() => {
-    let interval = setTimeout(() => {
-      if (isPlaying) {
-        setTimer(timer => timer - 1)
-        setTicking(ticking => ticking + 1)
-      }
-    }, 1000)
-    if (timer === 0) {
-      clearInterval(interval)
+    async function endGame(wait) {
+      await new Promise(r => setTimeout(r, wait * 1000))
       if (value > opponentScore) {
         Alert.alert("You won!", `Your Score: ${value}, Opponent's Score: ${opponentScore}`)
         setWins(wins => wins + 1)
@@ -43,6 +37,17 @@ export default function Multiplayer({route}) {
         Alert.alert("You tied")
       }
       restart()
+    }
+    let interval = setTimeout(() => {
+      if (isPlaying) {
+        setTimer(timer => timer - 1)
+        setTicking(ticking => ticking + 1)
+      }
+    }, 1000)
+    if (timer === 0) {
+      clearInterval(interval)
+      //wait 2 sec for possible delay...then show score
+      endGame(2)
     }
     return () => clearTimeout(interval)
   }, [ticking, isPlaying])

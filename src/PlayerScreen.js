@@ -43,7 +43,7 @@ export default function PlayerScreen({navigation}) {
           game_id: game_id
         }, (error) => {
           if (error) {
-            console.log("Couldn't get game deets")
+            console.log("Couldn't get game details")
           } else {
             console.log("navigating (p1)")
             navigation.navigate("Multiplayer", {p1: player1, p2: player2, game_id: game_id, master: 1})
@@ -88,11 +88,9 @@ export default function PlayerScreen({navigation}) {
 return(
   <View style={styles.container}>
       {!searching && <TextInput placeholder="Screen Name" value={text} onChangeText={setText}/>}
-        {/* {!searching && <Input/>} */}
         {searching && <Text>{text}</Text>}
         {text.length > 0 && !searching ? <Button title="Search other players" onPress={() => addUser()}/> : null}
         {searching && <ActivityIndicator size="large" />}
-        {/* <Button title="Start" onPress={() => navigation.navigate("Multiplayer")}/> */}
     </View>
   )
 }
