@@ -26,17 +26,20 @@ export default function Multiplayer({route}) {
   //set total time
   useEffect(() => {
     async function endGame(wait) {
-      await new Promise(r => setTimeout(r, wait * 1000))
-      if (value > opponentScore) {
-        Alert.alert("You won!", `Your Score: ${value}, Opponent's Score: ${opponentScore}`)
-        setWins(wins => wins + 1)
-      } else if (value < opponentScore) {
-        Alert.alert("You lost :(", `Your Score: ${value}, Opponent's Score: ${opponentScore}`)
-        setLosses(losses => losses + 1)
-      } else {
-        Alert.alert("You tied")
-      }
-      restart()
+      await new Promise(r => setTimeout(r, wait * 1000)).then(v => {
+        listenOnce()
+        console.log("Logging opp score: " + opponentScore)
+        if (value > opponentScore) {
+          Alert.alert("You won!", `Your Score: ${value}, Opponent's Score: ${opponentScore}`)
+          setWins(wins => wins + 1)
+        } else if (value < opponentScore) {
+          Alert.alert("You lost :(", `Your Score: ${value}, Opponent's Score: ${opponentScore}`)
+          setLosses(losses => losses + 1)
+        } else {
+          Alert.alert("You tied")
+        }
+        restart()
+      })
     }
     let interval = setTimeout(() => {
       if (isPlaying) {
@@ -47,7 +50,7 @@ export default function Multiplayer({route}) {
     if (timer === 0) {
       clearInterval(interval)
       //wait 2 sec for possible delay...then show score
-      endGame(2)
+      endGame(5)
     }
     return () => clearTimeout(interval)
   }, [ticking, isPlaying])
@@ -78,6 +81,18 @@ export default function Multiplayer({route}) {
       gameRef.off()
     }
   }, [])
+
+  //check opponent's score once
+  const listenOnce = () => {
+    console.log("final check")
+    const route_str = route.params.master == 1 ? "/p2_score" : "/p1_score"
+    const gameRef = db.ref('/games/' + route.params.game_id + route_str)
+    gameRef.get().then((snapshot) => {
+      const score = snapshot.val()
+      console.log(score)
+      setOpponentScore(score)
+    })
+  } 
 
   const upgrade = () => {
     if (value < 100) {
